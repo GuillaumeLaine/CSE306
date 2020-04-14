@@ -132,7 +132,7 @@ public:
     Intersection intersect(Ray r) {
         
         Intersection intersect_point;
-        double min_dist = 1000000000;
+        double min_dist = 1000000;
 
         for (int i=0; i<s.size(); i++) {
             Sphere sphere = s[i];
@@ -163,34 +163,40 @@ struct TriangleIndices {
 };
 
 double intensity(Scene& scene, Intersection& i, Vector& S) {
-    double I = 30000;
+    double I = 100000000;
     double d = norm(S - i.P);
     Vector wi = unit(S - i.P);
     int vp = 0;
 
     //Check visibility
-    Ray r(S, wi);
+    Ray r(i.P + scale(0.001, wi), wi);
     Intersection light_i = scene.intersect(r);
-    if (light_i.flag) {
-    }
 
-    if (norm(S - light_i.P) >= d) {
+    if (!light_i.flag) {
         vp = 1; //visible    
     }
 
-    return (I * vp * dot(i.N, wi)) / (4 * M_PI * M_PI * d * d);
+    else {
+        if (norm(light_i.P - S) >= d) {
+            vp = 1;
+        }
+    }
+
+    double scalar = dot(i.N, wi);
+
+    return (I * vp * max(-scalar, 0.) / (4 * M_PI * M_PI * d * d));
 };
 
 
 int main() {
 
     // Define scene
-    Sphere s(Vector(0, 0, 0), 10, Vector(0.9, 0.9, 0.9));
+    Sphere s(Vector(0, 0, 0), 10, Vector(1, 0, 1));
     /*
-    Sphere s1(Vector(0, 1000, 0), 940, Vector(255, 0, 0)); 
-    Sphere s2(Vector(0, 0, -1000), 940, Vector(0, 255, 0));
-    Sphere s3(Vector(0, -1000, 0), 990, Vector(0, 0, 255));
-    Sphere s4(Vector(0, 0, 1000), 940, Vector(255, 0, 255));
+    Sphere s1(Vector(0, 1000, 0), 940, Vector(1, 0, 0)); 
+    Sphere s2(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
+    Sphere s3(Vector(0, -1000, 0), 990, Vector(0, 0, 1));
+    Sphere s4(Vector(0, 0, 1000), 940, Vector(1, 0, 1));
     */
 
     vector<Sphere> scene_vector;
@@ -231,9 +237,9 @@ int main() {
             if (intersect.flag) {
                 Vector albedo = intersect.albedo;
                 double L = intensity(scene, intersect, S);
-                img.push_back(albedo[0] * L);
-                img.push_back(albedo[1] * L);
-                img.push_back(albedo[2] * L);
+                img.push_back(albedo[0] * L * 255);
+                img.push_back(albedo[1] * L * 255);
+                img.push_back(albedo[2] * L * 255);
             }
             else {
                 img.push_back(0);
