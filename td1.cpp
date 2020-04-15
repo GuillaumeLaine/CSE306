@@ -89,7 +89,7 @@ public:
         albedo = color;
     };
 
-    Intersection intersect(Ray r) {
+    Intersection intersect(Ray& r) {
         Intersection i;
         double d = dot(r.u, r.O - C);
         
@@ -129,7 +129,7 @@ public:
         this->s = spheres;
     }
 
-    Intersection intersect(Ray r) {
+    Intersection intersect(Ray& r) {
         
         Intersection intersect_point;
         double min_dist = 1000000;
@@ -169,7 +169,7 @@ double intensity(Scene& scene, Intersection& i, Vector& S) {
     int vp = 0;
 
     //Check visibility
-    Ray r(i.P + scale(0.001, wi), wi);
+    Ray r(i.P + scale(0.01*norm(wi), wi), wi);
     Intersection light_i = scene.intersect(r);
 
     if (!light_i.flag) {
@@ -182,9 +182,7 @@ double intensity(Scene& scene, Intersection& i, Vector& S) {
         }
     }
 
-    double scalar = dot(i.N, wi);
-
-    return (I * vp * max(-scalar, 0.) / (4 * M_PI * M_PI * d * d));
+    return (I * vp * max(-dot(i.N, wi), 0.) / (4 * M_PI * M_PI * d * d));
 };
 
 
