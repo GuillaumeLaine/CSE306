@@ -42,6 +42,7 @@ struct Intersection {
     Vector albedo;
     bool flag = false;
     int sphere_id;
+    double dist_t;
 };
 
 class Ray {

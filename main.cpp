@@ -45,7 +45,7 @@ int main() {
     double fov = M_PI / 3;
     double z = cam[2] - W/(2*tan(fov/2));
     double gamma = 1. / 2.2;
-    double K = 10;
+    double K = 1000;
 
     // Ray trace
     vector<unsigned char> img(W*H*3);
@@ -60,12 +60,21 @@ int main() {
             Vector ray_dir = unit(pixel - cam);
             Ray r(cam, ray_dir);
 
-            // Average color over each pixel ray
+            Intersection inter = scene.intersect(r);
+
             Vector color = Vector();
-            for (int k = 0; k < K; k++) {
-                color += scene.getColor(r, S);
+            if (scene.s[inter.sphere_id].refracts) {
+                for (int k = 0; k < K; k++) {
+                    color += scene.getColor(r, S);
+                }
+                color = (1 / K) * color;
             }
-            color = (1 / K) * color;
+
+            else {
+                color = scene.getColor(r, S);
+            }
+            // Average color over each pixel ray
+            
 
             img[(i * W + j)*3 + 0] = max(0., min(255., pow(color[0], gamma)));
             img[(i * W + j)*3 + 1] = max(0., min(255., pow(color[1], gamma)));

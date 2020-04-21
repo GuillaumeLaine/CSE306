@@ -83,19 +83,27 @@ Intersection Sphere::intersect(const Ray& r) {
     double d = dot(r.u, v);
     
     double delta = d * d - (dot(v, v) - (R * R));
+    
     if (delta >= 0) {
+    
         double sq_delta = sqrt(delta);
         double minus_d = dot(r.u, -1 * v);
-        double t1 = minus_d - sq_delta;
         double t2 = minus_d + sq_delta;
+    
         if (t2 >= 0) {
+    
+            double t1 = minus_d - sq_delta;
+    
             if (t1 >= 0) {
                 i.flag = true;
                 i.P = r.O + t1 * r.u;
+                i.dist_t = t1;
             }
+    
             else {
                 i.flag = true;
                 i.P = r.O + t2 * r.u;
+                i.dist_t = t2;
             }
 
             i.N = unit(i.P - C);
@@ -117,11 +125,16 @@ Intersection Scene::intersect(const Ray& r) {
     double min_dist = 1000000;
 
     for (int i=0; i<s.size(); i++) {
+
         Sphere sphere = s[i];
         Intersection intersection = sphere.intersect(r);
+
         if (intersection.flag) {
+
             double dist_sq = dot(r.O - intersection.P, r.O - intersection.P); // skip sqrt computation for rapidity
+
             if (dist_sq <= min_dist) {
+
                 min_dist = dist_sq;
                 intersect_point = intersection;
                 intersect_point.sphere_id = i;
@@ -206,7 +219,7 @@ Vector intensity(Scene& scene, Intersection& i, Vector& S) {
     double d_sq = dot(v1, v1);
     Vector wi = v1 / sqrt(d_sq);
     
-    int vp = 0;
+    double vp = 0;
 
     //Check visibility
     Ray r(i.P + 0.01*i.N, wi);
@@ -217,8 +230,8 @@ Vector intensity(Scene& scene, Intersection& i, Vector& S) {
     }
 
     else {
-        Vector v2 = light_i.P - i.P;
-        if (dot(v2, v2) > d_sq) {
+        double v2 = light_i.dist_t;
+        if (v2 * v2 > d_sq) {
             vp = 1;
         }
     }
