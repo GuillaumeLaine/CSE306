@@ -38,7 +38,11 @@ Vector operator*(double a, const Vector& v) {
 }
 
 Vector operator*(const Vector& v, double a) {
-    return  Vector(a * v[0], a * v[1], a * v[2]);
+    return Vector(a * v[0], a * v[1], a * v[2]);
+}
+
+Vector operator/(const Vector& v, double a) {
+    return Vector(v[0] / a, v[1] / a, v[2] / a); 
 }
 
 Vector scale(double a, const Vector& v) {
@@ -75,22 +79,23 @@ Sphere::Sphere(Vector center, double radius, Vector color, bool reflects, bool r
 
 Intersection Sphere::intersect(const Ray& r) {
     Intersection i;
-    double d = dot(r.u, r.O - C);
+    Vector v = r.O - C;
+    double d = dot(r.u, v);
     
-    double delta = d * d - (pow(norm(r.O - C), 2) - (R * R));
+    double delta = d * d - (dot(v, v) - (R * R));
     if (delta >= 0) {
         double sq_delta = sqrt(delta);
-        double minus_d = dot(r.u, C - r.O);
+        double minus_d = dot(r.u, -1 * v);
         double t1 = minus_d - sq_delta;
         double t2 = minus_d + sq_delta;
         if (t2 >= 0) {
             if (t1 >= 0) {
                 i.flag = true;
-                i.P = r.O + scale(t1, r.u);
+                i.P = r.O + t1 * r.u;
             }
             else {
                 i.flag = true;
-                i.P = r.O + scale(t2, r.u);
+                i.P = r.O + t2 * r.u;
             }
 
             i.N = unit(i.P - C);
@@ -115,9 +120,9 @@ Intersection Scene::intersect(const Ray& r) {
         Sphere sphere = s[i];
         Intersection intersection = sphere.intersect(r);
         if (intersection.flag) {
-            double dist = norm(r.O - intersection.P);
-            if (dist <= min_dist) {
-                min_dist = dist;
+            double dist_sq = dot(r.O - intersection.P, r.O - intersection.P); // skip sqrt computation for rapidity
+            if (dist_sq <= min_dist) {
+                min_dist = dist_sq;
                 intersect_point = intersection;
                 intersect_point.sphere_id = i;
             }
@@ -197,12 +202,14 @@ Vector Scene::getColor(const Ray& r, Vector& S, int ray_depth) {
 // Utils
 Vector intensity(Scene& scene, Intersection& i, Vector& S) {
     double I = 100000000;
-    double d = norm(S - i.P);
-    Vector wi = unit(S - i.P);
+    Vector v1 = S - i.P;
+    double d_sq = dot(v1, v1);
+    Vector wi = v1 / sqrt(d_sq);
+    
     int vp = 0;
 
     //Check visibility
-    Ray r(i.P + scale(0.01, i.N), wi);
+    Ray r(i.P + 0.01*i.N, wi);
     Intersection light_i = scene.intersect(r);
 
     if (!light_i.flag) {
@@ -210,10 +217,11 @@ Vector intensity(Scene& scene, Intersection& i, Vector& S) {
     }
 
     else {
-        if (norm(light_i.P - i.P) > d) {
+        Vector v2 = light_i.P - i.P;
+        if (dot(v2, v2) > d_sq) {
             vp = 1;
         }
     }
 
-    return i.albedo * (I * vp * max(dot(i.N, wi), 0.) / (4 * M_PI * M_PI * d * d)) * 255;
+    return i.albedo * (I * vp * max(dot(i.N, wi), 0.) / (4 * M_PI * M_PI * d_sq)) * 255;
 };

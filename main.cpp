@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <math.h>
+#include <time.h>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
 #include "stb_image_write.h"
@@ -11,6 +12,8 @@ using namespace std;
 
 
 int main() {
+
+    clock_t tStart = clock();
 
     // Define scene
     Sphere white_ball(Vector(0, 0, 0), 10, Vector(1, 1, 1));
@@ -42,7 +45,7 @@ int main() {
     double fov = M_PI / 3;
     double z = cam[2] - W/(2*tan(fov/2));
     double gamma = 1. / 2.2;
-    double K = 50;
+    double K = 10;
 
     // Ray trace
     vector<unsigned char> img(W*H*3);
@@ -73,6 +76,8 @@ int main() {
 
     // Write to image
     stbi_write_png("image.png", W, H, 3, &img[0], 0);
+
+    printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
 
     return 0;
 }
