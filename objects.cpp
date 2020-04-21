@@ -1,6 +1,7 @@
 #include <vector>
 #include <cmath>
 #include <math.h>
+#include <random>
 
 #include "objects.h"
 
@@ -64,11 +65,12 @@ Ray::Ray(Vector origin, Vector direction) {
 };
 
 // Sphere definition
-Sphere::Sphere(Vector center, double radius, Vector color, bool reflects) {
+Sphere::Sphere(Vector center, double radius, Vector color, bool reflects, bool refracts) {
     C = center;
     R = radius;
     albedo = color;
-    this->reflects = reflects; 
+    this->reflects = reflects;
+    this->refracts = refracts;
 };
 
 Intersection Sphere::intersect(const Ray& r) {
@@ -132,23 +134,63 @@ Vector Scene::getColor(const Ray& r, Vector& S, int ray_depth) {
     }
 
     Intersection i = this->intersect(r);
-    int sphere_id = i.sphere_id;
+    Sphere int_sphere = s[i.sphere_id];
 
     if (i.flag) {
 
-        if (s[sphere_id].reflects) {
+        // Reflective surface
+        if (int_sphere.reflects) {
             
             Ray reflected_ray(i.P + scale(0.01, i.N), r.u - (scale(2 * dot(r.u, i.N), i.N)));
             return getColor(reflected_ray, S, ray_depth - 1);
         
         }
 
+        // Transparent surface
+        if (int_sphere.refracts) {
+
+            const double glass_n = 1.5168;
+
+            bool is_entering = dot(r.u, i.N) < 0;  // check ray is entering ball
+            double n1 = is_entering ? 1 : glass_n;
+            double n2 = is_entering ? glass_n : 1;
+            Vector N = is_entering ? i.N : -1 * i.N;
+
+            double k0 = ((n1 - n2) * (n1 - n2)) / ((n1 + n2) * (n1 + n2));
+            double R = k0 + (1 - k0) * pow(1 - abs(dot(N, r.u)), 5);
+            double T = 1 - R;
+
+            double rand_float = (double) (rand() % 100) / 100;
+
+            // reflect with probability, to model reflecting portion of ray
+            if (rand_float < R) {
+
+                Ray reflected_ray(i.P + 0.01*N, r.u - (scale(2 * dot(r.u, N), N)));
+                return getColor(reflected_ray, S, ray_depth - 1);
+
+            }
+
+            // otherwise refract "the rest of the ray"
+            Vector wT = (n1 / n2) * (r.u - dot(r.u, N) * N);
+            Vector wN = -1 * N * (sqrt(1 - (n1/n2) * (n1/n2) * (1 - pow(dot(r.u, N), 2))));
+            Vector w = wT + wN;
+            Ray refracted_ray(i.P - 0.01*N, w); // in refraction, move point slightly to the other side
+
+            Vector color = getColor(refracted_ray, S, ray_depth - 1);
+            return color;
+
+        }
+
+        // Diffuse surface
         else {
         
             return intensity(*this, i, S);
         
         }
     }
+
+    // No ray intersection
+    return Vector();
 }
 
 

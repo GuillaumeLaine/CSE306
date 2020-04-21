@@ -61,8 +61,9 @@ public:
     Vector C;
     Vector albedo; 
     bool reflects;
+    bool refracts;
 
-    explicit Sphere(Vector center, double radius, Vector color, bool reflects = false);
+    explicit Sphere(Vector center, double radius, Vector color, bool reflects = false, bool refracts = false);
     Intersection intersect(const Ray& r);
 };
 
