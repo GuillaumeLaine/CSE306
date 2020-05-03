@@ -134,7 +134,7 @@ Scene::Scene(vector<Sphere> spheres) {
 Intersection Scene::intersect(const Ray& r) {
     
     Intersection intersect_point;
-    double min_dist = 1000000;
+    double min_dist = 100000000;
 
     for (int i=0; i<s.size(); i++) {
 

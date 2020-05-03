@@ -45,13 +45,12 @@ int main() {
     double fov = M_PI / 3;
     double z = cam[2] - W/(2*tan(fov/2));
     double gamma = 1. / 2.2;
-    const int K = 1000;
+    const int K = 10;
 
     // Ray trace
     vector<unsigned char> img(W*H*3);
     #pragma omp parallel for schedule(dynamic, 1)
     for (int i = 0; i < H; i++) {
-        #pragma omp parallel for schedule(dynamic, 1)
         for (int j = 0; j < W; j++) {
             
             double x = j;

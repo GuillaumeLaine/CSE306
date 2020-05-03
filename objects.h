@@ -49,6 +49,7 @@ struct Intersection {
     double dist_t;
 };
 
+
 class Ray {
 
 public:
@@ -58,15 +59,24 @@ public:
     explicit Ray(Vector origin, Vector direction);
 };
 
-class Sphere {
+class Geometry {
+
+public:
+    
+    Vector albedo;
+    bool reflects;
+    bool refracts;
+
+    virtual Intersection intersect (const Ray& r) = 0;
+
+};
+
+class Sphere : public Geometry{
 
 public:
 
     double R;
     Vector C;
-    Vector albedo; 
-    bool reflects;
-    bool refracts;
 
     explicit Sphere(Vector center, double radius, Vector color, bool reflects = false, bool refracts = false);
     Intersection intersect(const Ray& r);
