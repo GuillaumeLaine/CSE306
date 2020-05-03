@@ -87,3 +87,5 @@ public:
 Vector intensity(Scene& scene, Intersection& i, Vector& S);
 
 Vector random_cos(const Vector &N);
+
+Vector boxMuller(double stdev=1.);

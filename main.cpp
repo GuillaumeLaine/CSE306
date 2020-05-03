@@ -23,13 +23,13 @@ int main() {
     Sphere back_wall(Vector(0, 0, 1000), 940, Vector(1, 0, 1));
     Sphere left_wall(Vector(-1000, 0, 0), 940, Vector(0, 1, 1));
     Sphere right_wall(Vector(1000, 0, 0), 940, Vector(1, 1, 0));
-    Sphere mirror_ball(Vector(-20, 0, 0), 10, Vector(1, 1, 1));
-    mirror_ball.reflects = true;
-    Sphere glass_ball(Vector(20, 0, 0), 10, Vector(1, 1, 1));
-    glass_ball.refracts = true;
+    // Sphere mirror_ball(Vector(-20, 0, 0), 10, Vector(1, 1, 1));
+    // mirror_ball.reflects = true;
+    // Sphere glass_ball(Vector(20, 0, 0), 10, Vector(1, 1, 1));
+    // glass_ball.refracts = true;
 
     static const Sphere array[] = {
-        white_ball, mirror_ball, glass_ball,
+        white_ball, // mirror_ball, glass_ball,
         front_wall, back_wall, left_wall, right_wall, ceiling, floor
         };
 
@@ -58,15 +58,17 @@ int main() {
             double y = H - i - 1;
 
             Vector pixel(cam[0] + x + 0.5 - W/2, cam[1] + y + 0.5 - H/2, z);
-            
-            Vector ray_dir = unit(pixel - cam);
-            Ray r(cam, ray_dir);
 
             // Average color over each pixel ray
             Vector color = Vector();
 
             for (int k = 0; k < K; k++) {
+
+                Vector pixel_aa = pixel + boxMuller(); // offset pixel positioning for anti-aliasing                 
+                Vector ray_dir = unit(pixel_aa - cam);
+                Ray r(cam, ray_dir);
                 color += scene.getColor(r, S);
+
             }
             color = color * 255 / K;
 
@@ -84,3 +86,4 @@ int main() {
 
     return 0;
 }
+

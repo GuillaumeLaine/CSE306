@@ -231,7 +231,7 @@ Vector Scene::getColor(const Ray& r, Vector& S, int ray_depth) {
 
 // Utils
 Vector intensity(Scene& scene, Intersection& i, Vector& S) {
-    double I = 100000000;
+    double I = 200000000;
     Vector v1 = S - i.P;
     double d_sq = dot(v1, v1);
     Vector wi = v1 / sqrt(d_sq);
@@ -278,4 +278,15 @@ Vector random_cos(const Vector &N) {
     Vector T2 = cross(N, T1);
 
     return x * T1 + y * T2 + z * N;
+}
+
+Vector boxMuller(double stdev) {
+
+    double r1 = uniform(engine);
+    double r2 = uniform(engine);
+    double x = sqrt(-2 * log(r1)) * cos(2 * M_PI * r2) * stdev;
+    double y = sqrt(-2 * log(r1)) * sin(2 * M_PI * r2) * stdev;
+
+    return Vector(x, y, 0.);
+
 }
