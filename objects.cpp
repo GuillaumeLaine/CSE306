@@ -127,7 +127,7 @@ Intersection Sphere::intersect(const Ray& r) {
 }
 
 // Scene definition
-Scene::Scene(vector<Sphere> spheres) {
+Scene::Scene(vector<Geometry*> spheres) {
     this->s = spheres;
 };
 
@@ -138,8 +138,8 @@ Intersection Scene::intersect(const Ray& r) {
 
     for (int i=0; i<s.size(); i++) {
 
-        Sphere sphere = s[i];
-        Intersection intersection = sphere.intersect(r);
+        Geometry* sphere = s[i];
+        Intersection intersection = sphere->intersect(r);
 
         if (intersection.flag) {
 
@@ -167,10 +167,10 @@ Vector Scene::getColor(const Ray& r, Vector& S, int ray_depth) {
 
     if (i.flag) {
     
-        Sphere int_sphere = s[i.sphere_id];
+        Geometry* int_sphere = s[i.sphere_id];
 
         // Reflective surface
-        if (int_sphere.reflects) {
+        if (int_sphere->reflects) {
             
             Ray reflected_ray(i.P + scale(0.01, i.N), r.u - (scale(2 * dot(r.u, i.N), i.N)));
             return getColor(reflected_ray, S, ray_depth - 1);
@@ -178,7 +178,7 @@ Vector Scene::getColor(const Ray& r, Vector& S, int ray_depth) {
         }
 
         // Transparent surface
-        if (int_sphere.refracts) {
+        if (int_sphere->refracts) {
 
             const double glass_n = 1.5168;
 

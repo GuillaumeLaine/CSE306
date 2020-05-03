@@ -86,9 +86,9 @@ class Scene {
 
 public:
 
-    vector<Sphere> s;
+    vector<Geometry*> s;
     
-    Scene(vector<Sphere> spheres);
+    Scene(vector<Geometry*> spheres);
     Intersection intersect(const Ray& r);
     Vector getColor(const Ray& r, Vector& S,  int ray_depth = 5);
 

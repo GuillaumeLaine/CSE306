@@ -16,26 +16,22 @@ int main() {
     clock_t tStart = clock();
 
     // Define scene
-    Sphere white_ball(Vector(0, 0, 0), 10, Vector(1, 1, 1));
-    Sphere ceiling(Vector(0, 1000, 0), 940, Vector(1, 0, 0)); 
-    Sphere front_wall(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
-    Sphere floor(Vector(0, -1000, 0), 990, Vector(0, 0, 1));
-    Sphere back_wall(Vector(0, 0, 1000), 940, Vector(1, 0, 1));
-    Sphere left_wall(Vector(-1000, 0, 0), 940, Vector(0, 1, 1));
-    Sphere right_wall(Vector(1000, 0, 0), 940, Vector(1, 1, 0));
-    // Sphere mirror_ball(Vector(-20, 0, 0), 10, Vector(1, 1, 1));
-    // mirror_ball.reflects = true;
-    // Sphere glass_ball(Vector(20, 0, 0), 10, Vector(1, 1, 1));
-    // glass_ball.refracts = true;
+    Geometry* white_ball  = new Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1));
+    Geometry* ceiling     = new Sphere(Vector(0, 1000, 0), 940, Vector(1, 0, 0)); 
+    Geometry* front_wall  = new Sphere(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
+    Geometry* floor       = new Sphere(Vector(0, -1000, 0), 990, Vector(0, 0, 1));
+    Geometry* back_wall   = new Sphere(Vector(0, 0, 1000), 940, Vector(1, 0, 1));
+    Geometry* left_wall   = new Sphere(Vector(-1000, 0, 0), 940, Vector(0, 1, 1));
+    Geometry* right_wall  = new Sphere(Vector(1000, 0, 0), 940, Vector(1, 1, 0));
+    Geometry* mirror_ball = new Sphere(Vector(-20, 0, 0), 10, Vector(1, 1, 1));
+    Geometry* glass_ball  = new Sphere(Vector(20, 0, 0), 10, Vector(1, 1, 1));
+    mirror_ball->reflects = true;
+    glass_ball->refracts = true;
 
-    static const Sphere array[] = {
-        white_ball, // mirror_ball, glass_ball,
+    Scene scene({
+        white_ball, mirror_ball, glass_ball,
         front_wall, back_wall, left_wall, right_wall, ceiling, floor
-        };
-
-    vector<Sphere> scene_vector (array, array + sizeof(array) / sizeof(array[0]));
-
-    Scene scene(scene_vector);
+        });
     Vector S(-10, 20, 40);
 
     // Viewing window
