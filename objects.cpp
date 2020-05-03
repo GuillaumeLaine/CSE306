@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "objects.h"
+#include "mesh.cpp"
 
 using namespace std;
 
@@ -136,7 +137,7 @@ Intersection Scene::intersect(const Ray& r) {
     Intersection intersect_point;
     double min_dist = 100000000;
 
-    for (int i=0; i<s.size(); i++) {
+    for (unsigned int i=0; i<s.size(); i++) {
 
         Geometry* sphere = s[i];
         Intersection intersection = sphere->intersect(r);
@@ -189,7 +190,6 @@ Vector Scene::getColor(const Ray& r, Vector& S, int ray_depth) {
 
             double k0 = ((n1 - n2) * (n1 - n2)) / ((n1 + n2) * (n1 + n2));
             double R = k0 + (1 - k0) * pow(1 - abs(dot(N, r.u)), 5);
-            double T = 1 - R;
 
             double rand_float = (double) (rand() % 100) / 100;
 

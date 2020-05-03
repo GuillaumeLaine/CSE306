@@ -29,12 +29,12 @@ public:
   	~TriangleMesh() {}
 	TriangleMesh() {};
 	
-	Intersection interect(const Ray& r) {
+	Intersection intersect(const Ray& r) {
 
 	    Intersection i;
 		double min_dist = 1000000000;
 
-		for(int k = 0; k < indices.size(); ++k) {
+		for(unsigned int k = 0; k < indices.size(); ++k) {
 
 			TriangleIndices idx = indices[k];
 			Vector A = vertices[idx.vtxi], B = vertices[idx.vtxj], C = vertices[idx.vtxk];
@@ -44,16 +44,17 @@ public:
 			double d1 = dot(r.u, N);
 			Vector v1 = cross(A - r.O, r.u);
 
-			double beta = dot(e2, v1) / d1, gamma = dot(e1, v1) / d1, alpha = 1. - beta - gamma;
+			double beta = dot(e2, v1) / d1, gamma = -dot(e1, v1) / d1, alpha = 1. - beta - gamma;
 			double t = dot(A - r.O, N) / d1;
 
 			bool is_inrange = 0 <= alpha && alpha <= 1 && 0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1;
 			bool is_closest = t < min_dist;
 
-			if (is_inrange && is_closest) {
+			if (t >= 0 && is_inrange && is_closest) {
 
 				min_dist = t;
 				i.flag = true;
+				// i.P = alpha * A + beta * B + gamma * C;
 				i.P = r.O + t * r.u;
 				i.dist_t = t;
 				i.N = unit(alpha * normals[idx.ni] + beta * normals[idx.nj] + gamma * normals[idx.nk]);
@@ -61,12 +62,14 @@ public:
 				
 			}
 		}
+
+		return i;
+
 	};
 
 
 	void readOBJ(const char* obj) {
 
-		char matfile[255];
 		char grp[255];
 
 		FILE* f;

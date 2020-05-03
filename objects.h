@@ -63,7 +63,7 @@ class Geometry {
 
 public:
     
-    Vector albedo;
+    Vector albedo = Vector(1, 1, 1);
     bool reflects;
     bool refracts;
 

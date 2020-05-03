@@ -6,6 +6,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
 #include "stb_image_write.h"
+#include "mesh.cpp"
 #include "objects.h"
 
 using namespace std;
@@ -16,20 +17,27 @@ int main() {
     clock_t tStart = clock();
 
     // Define scene
-    Geometry* white_ball  = new Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1));
-    Geometry* ceiling     = new Sphere(Vector(0, 1000, 0), 940, Vector(1, 0, 0)); 
-    Geometry* front_wall  = new Sphere(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
-    Geometry* floor       = new Sphere(Vector(0, -1000, 0), 990, Vector(0, 0, 1));
-    Geometry* back_wall   = new Sphere(Vector(0, 0, 1000), 940, Vector(1, 0, 1));
-    Geometry* left_wall   = new Sphere(Vector(-1000, 0, 0), 940, Vector(0, 1, 1));
-    Geometry* right_wall  = new Sphere(Vector(1000, 0, 0), 940, Vector(1, 1, 0));
-    Geometry* mirror_ball = new Sphere(Vector(-20, 0, 0), 10, Vector(1, 1, 1));
-    Geometry* glass_ball  = new Sphere(Vector(20, 0, 0), 10, Vector(1, 1, 1));
+    Sphere* white_ball  = new Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1));
+    Sphere* ceiling     = new Sphere(Vector(0, 1000, 0), 940, Vector(1, 0, 0)); 
+    Sphere* front_wall  = new Sphere(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
+    Sphere* floor       = new Sphere(Vector(0, -1000, 0), 990, Vector(0, 0, 1));
+    Sphere* back_wall   = new Sphere(Vector(0, 0, 1000), 940, Vector(1, 0, 1));
+    Sphere* left_wall   = new Sphere(Vector(-1000, 0, 0), 940, Vector(0, 1, 1));
+    Sphere* right_wall  = new Sphere(Vector(1000, 0, 0), 940, Vector(1, 1, 0));
+    Sphere* mirror_ball = new Sphere(Vector(-20, 0, 0), 10, Vector(1, 1, 1));
+    Sphere* glass_ball  = new Sphere(Vector(20, 0, 0), 10, Vector(1, 1, 1));
     mirror_ball->reflects = true;
     glass_ball->refracts = true;
 
+    TriangleMesh* cat = new TriangleMesh();
+    cat->readOBJ("./cadnav/Models_F0202A090/cat.obj");
+    for (unsigned int i=0; i<cat->vertices.size(); ++i) {
+        cat->vertices[i] = cat->vertices[i] * 0.6 + Vector(0, -10, 0);
+    }
+
     Scene scene({
-        white_ball, mirror_ball, glass_ball,
+        cat,
+        // white_ball, mirror_ball, glass_ball,
         front_wall, back_wall, left_wall, right_wall, ceiling, floor
         });
     Vector S(-10, 20, 40);
@@ -41,7 +49,7 @@ int main() {
     double fov = M_PI / 3;
     double z = cam[2] - W/(2*tan(fov/2));
     double gamma = 1. / 2.2;
-    const int K = 10;
+    const int K = 15 ;
 
     // Ray trace
     vector<unsigned char> img(W*H*3);
@@ -56,7 +64,7 @@ int main() {
 
             // Average color over each pixel ray
             Vector color = Vector();
-
+    
             for (int k = 0; k < K; k++) {
 
                 Vector pixel_aa = pixel + boxMuller(); // offset pixel positioning for anti-aliasing                 
