@@ -2,10 +2,14 @@
 #include <cmath>
 #include <math.h>
 #include <random>
+#include <algorithm>
 
 #include "objects.h"
 
 using namespace std;
+
+static default_random_engine engine(10);
+static uniform_real_distribution<double> uniform(0, 1);
 
 // Vector definition
 Vector::Vector(double x, double y, double z) {
@@ -41,6 +45,10 @@ Vector operator*(const Vector& v, double a) {
     return Vector(a * v[0], a * v[1], a * v[2]);
 }
 
+Vector operator*(const Vector& v, const Vector& a) {      // tensor product
+    return Vector(a[0] * v[0], a[1] * v[1], a[2] * v[2]);
+}
+
 Vector operator/(const Vector& v, double a) {
     return Vector(v[0] / a, v[1] / a, v[2] / a); 
 }
@@ -59,6 +67,10 @@ double norm(const Vector& a) {
 
 Vector unit(const Vector& a) {
     return scale(1/norm(a), a);
+}
+
+Vector cross(const Vector& a, const Vector& b) {
+    return Vector(a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]);
 }
 
 
@@ -152,9 +164,10 @@ Vector Scene::getColor(const Ray& r, Vector& S, int ray_depth) {
     }
 
     Intersection i = this->intersect(r);
-    Sphere int_sphere = s[i.sphere_id];
 
     if (i.flag) {
+    
+        Sphere int_sphere = s[i.sphere_id];
 
         // Reflective surface
         if (int_sphere.reflects) {
@@ -194,16 +207,20 @@ Vector Scene::getColor(const Ray& r, Vector& S, int ray_depth) {
             Vector w = wT + wN;
             Ray refracted_ray(i.P - 0.01*N, w); // in refraction, move point slightly to the other side
 
-            Vector color = getColor(refracted_ray, S, ray_depth - 1);
-            return color;
+            return getColor(refracted_ray, S, ray_depth - 1);
 
         }
 
         // Diffuse surface
         else {
+            
+            Vector direct_contribution = intensity(*this, i, S);
         
-            return intensity(*this, i, S);
-        
+            Ray random_ray = Ray(i.P + 0.01*i.N, random_cos(i.N));
+            Vector indirect_contribution = i.albedo * getColor(random_ray, S, ray_depth - 1);
+
+            return (direct_contribution + indirect_contribution) / 2;
+
         }
     }
 
@@ -236,5 +253,29 @@ Vector intensity(Scene& scene, Intersection& i, Vector& S) {
         }
     }
 
-    return i.albedo * (I * vp * max(dot(i.N, wi), 0.) / (4 * M_PI * M_PI * d_sq)) * 255;
+    return i.albedo * (I * vp * max(dot(i.N, wi), 0.) / (4 * M_PI * M_PI * d_sq));
 };
+
+Vector random_cos(const Vector &N) {
+
+    double r1 = uniform(engine);
+    double r2 = uniform(engine);
+
+    double x = cos(2 * M_PI * r1) * sqrt(1 - r2);
+    double y = sin(2 * M_PI * r1) * sqrt(1 - r2);
+    double z = sqrt(r2);
+
+    vector<double> v = {abs(N[0]), abs(N[1]), abs(N[2])};
+
+    int minElemInd = min_element(v.begin(), v.end()) - v.begin();
+
+    Vector T1(0, 0, 0);
+    T1[minElemInd] = 0;
+    T1[(minElemInd + 1) % 3] = - N[(minElemInd - 1) % 3];
+    T1[(minElemInd - 1) % 3] = N[(minElemInd + 1) % 3];
+    T1 = unit(T1);
+
+    Vector T2 = cross(N, T1);
+
+    return x * T1 + y * T2 + z * N;
+}

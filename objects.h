@@ -27,6 +27,8 @@ Vector operator*(double a, const Vector& v);
 
 Vector operator*(const Vector& v, double a);
 
+Vector operator/(const Vector& v, double a);
+
 Vector scale(double a, const Vector& v);
 
 double dot(const Vector& a, const Vector& b);
@@ -34,6 +36,8 @@ double dot(const Vector& a, const Vector& b);
 double norm(const Vector& a);
 
 Vector unit(const Vector& a);
+
+Vector cross(const Vector& a, const Vector& b);
 
 struct Intersection {
 
@@ -81,3 +85,5 @@ public:
 };
 
 Vector intensity(Scene& scene, Intersection& i, Vector& S);
+
+Vector random_cos(const Vector &N);

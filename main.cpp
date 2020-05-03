@@ -39,17 +39,19 @@ int main() {
     Vector S(-10, 20, 40);
 
     // Viewing window
-    int H = 512;
-    int W = 512;
+    const int H = 512;
+    const int W = 512;
     Vector cam(0, 0, 55);
     double fov = M_PI / 3;
     double z = cam[2] - W/(2*tan(fov/2));
     double gamma = 1. / 2.2;
-    double K = 1000;
+    const int K = 1000;
 
     // Ray trace
     vector<unsigned char> img(W*H*3);
+    #pragma omp parallel for schedule(dynamic, 1)
     for (int i = 0; i < H; i++) {
+        #pragma omp parallel for schedule(dynamic, 1)
         for (int j = 0; j < W; j++) {
             
             double x = j;
@@ -60,21 +62,13 @@ int main() {
             Vector ray_dir = unit(pixel - cam);
             Ray r(cam, ray_dir);
 
-            Intersection inter = scene.intersect(r);
-
-            Vector color = Vector();
-            if (scene.s[inter.sphere_id].refracts) {
-                for (int k = 0; k < K; k++) {
-                    color += scene.getColor(r, S);
-                }
-                color = (1 / K) * color;
-            }
-
-            else {
-                color = scene.getColor(r, S);
-            }
             // Average color over each pixel ray
-            
+            Vector color = Vector();
+
+            for (int k = 0; k < K; k++) {
+                color += scene.getColor(r, S);
+            }
+            color = color * 255 / K;
 
             img[(i * W + j)*3 + 0] = max(0., min(255., pow(color[0], gamma)));
             img[(i * W + j)*3 + 1] = max(0., min(255., pow(color[1], gamma)));
