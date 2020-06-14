@@ -19,15 +19,14 @@ void test_poly_clipping() {
         Vector(0.9, 0.1, 0), 
         Vector(0.2, 0.1, 0)});
 
-    save_svg({subject}, "polygons/subject.svg");
-    save_svg({clipper}, "polygons/clipper.svg");
+    save_svg({subject}, "results/subject.svg");
+    save_svg({clipper}, "results/clipper.svg");
 
     Polygon clipped = clip_polygon(subject, clipper);
 
-    save_svg({clipped}, "polygons/clipped.svg");
+    save_svg({clipped}, "results/clipped.svg");
 
 }
-
 
 void test_voronoi() {
 
@@ -47,10 +46,10 @@ void test_voronoi() {
         Vector(1, 0, 0)});
 
     std::vector<Polygon> diagram = voronoi(points, space);
-    save_svg_with_points(diagram, points, "polygons/voronoi.svg");
+    save_svg_with_points(diagram, points, "results/voronoi.svg");
 
     std::vector<Vector> more_points = generate_points(10000);
-    save_svg_with_points(voronoi(more_points, space), more_points, "polygons/voronoi_more.svg");
+    save_svg_with_points(voronoi(more_points, space), more_points, "results/voronoi_more.svg");
 
 }
 int main() {
