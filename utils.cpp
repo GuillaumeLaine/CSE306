@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <random>
 
 #include "objects.h"
 
@@ -17,11 +18,35 @@
             fprintf(f, "\"\nfill = \"%s\" stroke = \"black\"/>\n", fillcol.c_str());
             fprintf(f, "</g>\n");
         }
+
         fprintf(f, "</svg>\n");
         fclose(f);
     }
  
- 
+    void save_svg_with_points(const std::vector<Polygon> &polygons, const std::vector<Vector> points, std::string filename, std::string fillcol = "none") {
+        FILE* f = fopen(filename.c_str(), "w+");
+        fprintf(f, "<svg xmlns = \"http://www.w3.org/2000/svg\" width = \"1000\" height = \"1000\">\n");
+        for (int i=0; i<polygons.size(); i++) {
+            fprintf(f, "<g>\n");
+            fprintf(f, "<polygon points = \"");
+            for (int j = 0; j < polygons[i].vertices.size(); j++) {
+                fprintf(f, "%3.3f, %3.3f ", (polygons[i].vertices[j][0] * 1000), (1000 - polygons[i].vertices[j][1] * 1000));
+            }
+            fprintf(f, "\"\nfill = \"%s\" stroke = \"black\"/>\n", fillcol.c_str());
+            fprintf(f, "</g>\n");
+        }
+        // using resource https://www.w3schools.com/graphics/svg_circle.asp
+        for (auto &point : points){
+            fprintf(f, "<g>\n");
+            fprintf(f, "<circle cx = \"%3.3f\" cy = \"%3.3f\" r=\"1\"/>", point[0] * 1000, 1000 - point[1] * 1000);
+            fprintf(f, "</g>\n");
+        }
+        
+        fprintf(f, "</svg>\n");
+        fclose(f);
+    }
+
+
 // Adds one frame of an animated svg file. frameid is the frame number (between 0 and nbframes-1).
 // polygons is a list of polygons, describing the current frame.
 // The polygon vertices are supposed to be in the range [0..1], and a canvas of size 1000x1000 is created
@@ -69,3 +94,23 @@
         }
         fclose(f);
     }
+
+// https://stackoverflow.com/questions/48716109/generating-a-random-number-between-0-1-c/48716227
+std::vector<Vector> generate_points(int n) {
+    
+    std::vector<Vector> points(n);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0, 1);
+
+    for (int i = 0; i < n; ++i) {
+        double r1 = dis(gen) ;
+        double r2 = dis(gen) ;
+        Vector point(r1, r2, 0);
+        points[i] = point;
+    }
+
+    return points;
+
+}

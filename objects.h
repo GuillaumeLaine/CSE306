@@ -59,3 +59,7 @@ bool is_inside(Vector const &P, Vector const &u, Vector const &v, Vector const &
 Vector intersect(Vector const &A, Vector const &B, Vector const &u, Vector const &v);
 
 Polygon clip_polygon(Polygon subject_polygon, Polygon &clip_polygon);
+
+Polygon clip_polygon(Polygon subject_polygon, Vector &clip_vert1, Vector &clip_vert2, Vector &site);
+
+vector<Polygon> voronoi(vector<Vector> points, Polygon site_start_polygon);

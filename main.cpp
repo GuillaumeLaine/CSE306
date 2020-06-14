@@ -1,7 +1,8 @@
 #include "objects.h"
 #include "utils.cpp"
+#include "time.h"
 
-int main() {
+void test_poly_clipping() {
 
     // clipping polygon test
     Polygon subject = Polygon({
@@ -24,6 +25,42 @@ int main() {
     Polygon clipped = clip_polygon(subject, clipper);
 
     save_svg({clipped}, "polygons/clipped.svg");
+
+}
+
+
+void test_voronoi() {
+
+    std::vector<Vector> points = {
+        Vector(0.2, 0.6, 0),
+        Vector(0.8, 0.6, 0), 
+        Vector(0.7, 0.5, 0), 
+        Vector(0.8, 0.4, 0), 
+        Vector(0.2, 0.4, 0), 
+        Vector(0.3, 0.5, 0)
+        };
+
+    Polygon space({
+        Vector(0, 0, 0),
+        Vector(0, 1, 0), 
+        Vector(1, 1, 0), 
+        Vector(1, 0, 0)});
+
+    std::vector<Polygon> diagram = voronoi(points, space);
+    save_svg_with_points(diagram, points, "polygons/voronoi.svg");
+
+    std::vector<Vector> more_points = generate_points(10000);
+    save_svg_with_points(voronoi(more_points, space), more_points, "polygons/voronoi_more.svg");
+
+}
+int main() {
+
+    clock_t tStart = clock();
+
+    test_poly_clipping();
+    test_voronoi();
+
+    printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
 
     return 0;
 
