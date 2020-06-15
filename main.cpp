@@ -1,6 +1,9 @@
+#include <numeric>
+
 #include "objects.h"
 #include "utils.cpp"
 #include "time.h"
+
 
 void test_poly_clipping() {
 
@@ -45,10 +48,15 @@ void test_voronoi() {
         Vector(1, 1, 0), 
         Vector(1, 0, 0)});
 
+
     std::vector<Polygon> diagram = voronoi(points, space);
     save_svg_with_points(diagram, points, "results/voronoi.svg");
 
-    std::vector<Vector> more_points = generate_points(10000);
+    std::vector<double> weights = {1.03, 1, 1, 1, 1, 1};
+    std::vector<Polygon> power_diagram = voronoi(points, space, weights);
+    save_svg_with_points(power_diagram, points, "results/power_diagram.svg");
+
+    std::vector<Vector> more_points = generate_points(100);
     save_svg_with_points(voronoi(more_points, space), more_points, "results/voronoi_more.svg");
 
 }

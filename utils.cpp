@@ -38,7 +38,7 @@
         // using resource https://www.w3schools.com/graphics/svg_circle.asp
         for (auto &point : points){
             fprintf(f, "<g>\n");
-            fprintf(f, "<circle cx = \"%3.3f\" cy = \"%3.3f\" r=\"1\"/>", point[0] * 1000, 1000 - point[1] * 1000);
+            fprintf(f, "<circle cx = \"%3.3f\" cy = \"%3.3f\" r=\"3\"/>", point[0] * 1000, 1000 - point[1] * 1000);
             fprintf(f, "</g>\n");
         }
         

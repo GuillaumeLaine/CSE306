@@ -88,7 +88,7 @@ bool is_inside(Vector const &P, Vector const &u, Vector const &v, Vector const &
     Vector N = Vector(v[1] - u[1], u[0] - v[0], 0);
 
     // makes sure N points outwards
-    N = (dot(u - inner_point, N) >= 0) ? N : -1 * N;
+    // N = (dot(u - inner_point, N) >= 0) ? N : -1 * N;
 
     return (dot(P - u, N) <= 0) ? true : false;
 }
@@ -173,23 +173,29 @@ Polygon clip_polygon(Polygon subject_polygon, Vector &clip_vert1, Vector &clip_v
 }
 
 
-vector<Polygon> voronoi(vector<Vector> points, Polygon site_start_polygon) {
+vector<Polygon> voronoi(vector<Vector> points, Polygon site_start_polygon, vector<double> weights) {
 
     vector<Polygon> voronoi_diagram;
 
-    #pragma omp parallel for schedule(dynamic, 1)
+    // #pragma omp parallel
     for(int i = 0; i < points.size(); ++i) {
         
         Vector Pi = points[i];
-
         Polygon site_polygon = site_start_polygon;
 
-        for (auto &Pj : points) {
+        for(int j = 0; j < points.size(); ++j) {
+            
+            Vector Pj = points[j];
 
             if (norm(Pi - Pj) == 0)
                 continue;
 
-        Vector M = (Pj + Pi) / 2;
+        Vector M;
+        if (!weights.size())
+            M = (Pj + Pi) / 2;
+        else
+            M = (Pj + Pi) / 2 + ((weights[i] - weights[j]) / (2 * pow(norm(Pi - Pj), 2))) * (Pj - Pi);
+    
         Vector bissector_point = M + Vector(Pi[1] - Pj[1], Pj[0] - Pi[0], 0);
 
         site_polygon = clip_polygon(site_polygon, M, bissector_point, Pi);     
