@@ -114,3 +114,19 @@ std::vector<Vector> generate_points(int n) {
     return points;
 
 }
+
+// http://www.cplusplus.com/reference/random/normal_distribution/
+std::vector<double> generate_weights(int n) {
+
+    std::vector<double> weights(n);
+
+    std::default_random_engine gen;
+    std::normal_distribution<double> dis(1, 0.01);
+
+    for (int i = 0; i < n; ++i) {
+        weights[i] = dis(gen);
+    }
+
+    return weights;
+
+}

@@ -52,12 +52,18 @@ void test_voronoi() {
     std::vector<Polygon> diagram = voronoi(points, space);
     save_svg_with_points(diagram, points, "results/voronoi.svg");
 
+    std::vector<Vector> more_points = generate_points(1000);
+    save_svg_with_points(voronoi(more_points, space), more_points, "results/voronoi_more.svg");
+
+    // Power diagram
     std::vector<double> weights = {1.03, 1, 1, 1, 1, 1};
     std::vector<Polygon> power_diagram = voronoi(points, space, weights);
     save_svg_with_points(power_diagram, points, "results/power_diagram.svg");
 
-    std::vector<Vector> more_points = generate_points(100);
-    save_svg_with_points(voronoi(more_points, space), more_points, "results/voronoi_more.svg");
+    std::vector<Vector> moreorless_points = generate_points(100);
+    std::vector<double> more_weights = generate_weights(100);
+    std::vector<Polygon> power_diagram_more = voronoi(moreorless_points, space, more_weights);
+    save_svg_with_points(power_diagram_more, moreorless_points, "results/power_diagram_more.svg");
 
 }
 int main() {
